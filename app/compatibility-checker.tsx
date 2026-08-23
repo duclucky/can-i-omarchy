@@ -23,6 +23,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
   const [selected, setSelected] = useState<string[]>(initialSelected);
   const [category, setCategory] = useState<Category>('All');
   const [query, setQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
   const [copied, setCopied] = useState<'link' | 'post' | null>(null);
 
   const selectedApps = useMemo(() => APPS.filter((app) => selected.includes(app.id)), [selected]);
@@ -34,6 +35,8 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
       return inCategory && inSearch;
     });
   }, [category, query]);
+  const isDefaultView = category === 'All' && query.trim() === '';
+  const visibleApps = isDefaultView && !showAll ? filteredApps.slice(0, 18) : filteredApps;
 
   const counts = useMemo(() => STATUS_ORDER.reduce<Record<AppStatus, number>>((result, status) => {
     result[status] = selectedApps.filter((app) => app.status === status).length;
@@ -130,7 +133,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
               <label className="search-field">
                 <span className="sr-only">Search apps</span>
                 <Search aria-hidden="true" />
-                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search 21 work apps" />
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${APPS.length} work apps`} />
                 {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search"><X aria-hidden="true" /></button>}
               </label>
               <span className="selection-count"><b>{selected.length}</b> selected</span>
@@ -138,7 +141,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
 
             <div className="category-tabs" aria-label="Filter apps by category">
               {CATEGORIES.map((item) => (
-                <button type="button" key={item} className={category === item ? 'active' : ''} onClick={() => setCategory(item)} aria-pressed={category === item}>
+                <button type="button" key={item} className={category === item ? 'active' : ''} onClick={() => { setCategory(item); setShowAll(false); }} aria-pressed={category === item}>
                   {item}
                 </button>
               ))}
@@ -158,7 +161,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
             )}
 
             <div className="app-grid">
-              {filteredApps.map((app) => {
+              {visibleApps.map((app) => {
                 const active = selected.includes(app.id);
                 return (
                   <button type="button" key={app.id} className={`app-card ${active ? 'selected' : ''}`} onClick={() => toggle(app.id)} aria-pressed={active}>
@@ -173,14 +176,21 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
               })}
             </div>
 
+            {isDefaultView && filteredApps.length > 18 && (
+              <button className="show-all-apps" type="button" onClick={() => setShowAll((current) => !current)} aria-expanded={showAll}>
+                {showAll ? 'Show popular apps only' : `Show all ${APPS.length} apps`}
+                <ArrowDown aria-hidden="true" />
+              </button>
+            )}
+
             {!filteredApps.length && (
               <div className="empty-state">
                 <Search aria-hidden="true" />
                 <strong>No matching app</strong>
-                <span>Try another name or add it to the community dataset.</span>
+                <span>Try another name or request it on GitHub.</span>
               </div>
             )}
-            <a className="missing-link" href="#contribute">Can&apos;t find an app? Help add it <ExternalLink aria-hidden="true" /></a>
+            <a className="missing-link" href="https://github.com/duclucky/can-i-omarchy/issues/new" target="_blank" rel="noreferrer">Missing an app? Request it on GitHub <ExternalLink aria-hidden="true" /></a>
           </div>
 
           <aside className={`result-panel ${score === null ? 'is-empty' : ''} ${blockers.length ? 'has-blocker' : ''}`} aria-live="polite" aria-label="Compatibility result">
@@ -215,7 +225,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
         </div>
       </section>
 
-      <section className="plan-section" id="plan" aria-labelledby="plan-title">
+      {sortedPlan.length > 0 && <section className="plan-section" id="plan" aria-labelledby="plan-title">
         <div className="plan-header">
           <div>
             <span className="section-kicker">02 / Make the move reversible</span>
@@ -229,7 +239,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
         </div>
 
         <div className="plan-list">
-          {sortedPlan.length ? sortedPlan.map((app, index) => (
+          {sortedPlan.map((app, index) => (
             <article className={`plan-card ${app.status}`} key={app.id}>
               <span className="plan-number">{String(index + 1).padStart(2, '0')}</span>
               <div className="plan-app">
@@ -239,16 +249,9 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
               <p>{app.plan}</p>
               <a href={app.source} target="_blank" rel="noreferrer" aria-label={`Open official source for ${app.name}`}>Official source <ExternalLink aria-hidden="true" /></a>
             </article>
-          )) : (
-            <div className="empty-plan">
-              <div><Plus aria-hidden="true" /></div>
-              <h3>Your plan starts with one required app.</h3>
-              <p>Select the tools that would stop your work if they failed.</p>
-              <a href="#checker">Choose my apps <ArrowDown aria-hidden="true" /></a>
-            </div>
-          )}
+          ))}
         </div>
-      </section>
+      </section>}
     </>
   );
 }

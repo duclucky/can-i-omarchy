@@ -1,6 +1,6 @@
 import { ArrowDown, Database, Github, LockKeyhole, ShieldCheck, Terminal } from 'lucide-react';
+import Image from 'next/image';
 import CompatibilityChecker from './compatibility-checker';
-import CopyContributionButton from './copy-contribution-button';
 import { APPS } from './apps';
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ apps?: string | string[] }> }) {
@@ -13,11 +13,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
       <a className="skip-link" href="#checker">Skip to compatibility checker</a>
 
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Can I Omarchy home"><span className="brand-mark">C?</span><span>CAN I OMARCHY?</span></a>
+        <a className="brand" href="#top" aria-label="Can I Omarchy home"><Image className="brand-logo" src="/brand-logo.png" alt="" width={40} height={40} priority /><span>CAN I OMARCHY?</span></a>
         <nav className="topbar-nav" aria-label="Primary navigation">
           <a href="#checker">Checker</a>
-          <a href="#plan">Migration plan</a>
-          <a href="#method">Method</a>
+          <a href="#checker">{APPS.length} apps</a>
         </nav>
         <a className="github-link" href="https://github.com/duclucky/can-i-omarchy" target="_blank" rel="noreferrer"><Github aria-hidden="true" /> <span>GitHub</span></a>
       </header>
@@ -53,27 +52,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
         <article><span>03</span><LockKeyhole aria-hidden="true" /><h3>Your data stays local</h3><p>Your selections stay in the browser. A share URL contains only the stable IDs of the apps you chose.</p></article>
       </section>
 
-      <section className="method" id="method">
-        <div className="section-intro">
-          <span className="section-kicker">How the verdict works</span>
-          <h2>A decision gate, not a personality quiz.</h2>
-          <p>One required blocker can matter more than ten easy apps. The score follows the consequence instead of averaging it away.</p>
-        </div>
-        <div className="method-grid">
-          <article><b>01</b><h3>Select required apps</h3><p>Choose only tools that can interrupt your real work. Nice-to-have apps distort the answer.</p></article>
-          <article><b>02</b><h3>Respect the hardest constraint</h3><p>A blocker caps the verdict at 39. A remote, VM, CI, or device bridge caps it at 74.</p></article>
-          <article><b>03</b><h3>Test a reversible route</h3><p>Follow the source-backed plan before changing disks, migrating files, or dropping your fallback OS.</p></article>
-        </div>
-      </section>
-
-      <section className="contribute" id="contribute">
-        <div><span className="section-kicker">Community dataset</span><h2>Missing the weird app that runs your business?</h2></div>
-        <p>Add evidence, the real Linux route, what still needs testing, and what breaks if it fails. “Works for me” is not enough.</p>
-        <CopyContributionButton />
-      </section>
-
       <footer>
-        <a className="brand" href="#top"><span className="brand-mark">C?</span><span>CAN I OMARCHY?</span></a>
+        <a className="brand" href="#top"><Image className="brand-logo" src="/brand-logo.png" alt="" width={40} height={40} /><span>CAN I OMARCHY?</span></a>
         <p>Independent community tool. Not affiliated with Omarchy, Basecamp, or 37signals.</p>
         <span>Compatibility snapshot / Aug 2026</span>
       </footer>

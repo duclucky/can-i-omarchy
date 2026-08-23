@@ -36,6 +36,10 @@ export const metadata: Metadata = {
     description: 'Check your stack before you switch.',
     images: ['/og.png'],
   },
+  icons: {
+    icon: '/brand-logo.png',
+    apple: '/brand-logo.png',
+  },
 };
 
 export default function RootLayout({
