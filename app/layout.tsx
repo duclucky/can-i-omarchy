@@ -13,17 +13,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://can-i-omarchy.rowers-drinker-2hrmx.chatgpt.site'),
   title: 'Can I Omarchy? — The honest compatibility check',
   description: 'Check whether your real work stack is ready for Omarchy before you touch your drive.',
   openGraph: {
     title: 'Can I Omarchy?',
     description: 'Your apps decide. Not the hype.',
     type: 'website',
+    url: '/',
+    images: [{ url: '/og.png', width: 1732, height: 907, alt: 'Can I Omarchy? Your apps decide. Not the hype.' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Can I Omarchy?',
     description: 'Your apps decide. Not the hype.',
+    images: ['/og.png'],
   },
 };
 
