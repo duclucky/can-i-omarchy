@@ -9,7 +9,9 @@ import {
   Check,
   CircleCheck,
   Copy,
+  Download,
   ExternalLink,
+  Flame,
   GitCompareArrows,
   Info,
   Plus,
@@ -18,6 +20,7 @@ import {
   Search,
   Share2,
   Sparkles,
+  Swords,
   Terminal,
   X,
 } from 'lucide-react';
@@ -54,12 +57,41 @@ function getOmarchyRoute(app: WorkApp) {
   return 'Super + Space → Install → Package / AUR';
 }
 
-export default function CompatibilityChecker({ initialSelected = [] }: { initialSelected?: string[] }) {
+type StackCounts = Record<AppStatus, number>;
+
+function getStackIdentity(selectedApps: WorkApp[], counts: StackCounts) {
+  const blockedIds = selectedApps.filter((app) => app.status === 'blocked').map((app) => app.id);
+  const blockedNames = selectedApps.filter((app) => app.status === 'blocked').map((app) => app.name);
+  if (blockedIds.some((id) => ['photoshop', 'illustrator', 'premiere', 'after-effects'].includes(id))) {
+    return { slug: 'adobe-hostage', title: 'THE ADOBE HOSTAGE', roast: 'Your creative freedom is leased from Adobe. Cancel the lease—or keep the keys to Windows.' };
+  }
+  if (blockedIds.some((id) => ['final-cut', 'ableton', 'fl-studio'].includes(id))) {
+    return { slug: 'studio-prisoner', title: 'THE STUDIO PRISONER', roast: 'Your files can move. Your studio cannot. The expensive plugins have the final vote.' };
+  }
+  if (counts.blocked > 0) {
+    return { slug: 'one-app-hostage', title: 'THE ONE-APP HOSTAGE', roast: `${blockedNames[0]} has root access to your operating-system choice.` };
+  }
+  if (counts.bridge >= 2) {
+    return { slug: 'bridge-architect', title: 'THE BRIDGE ARCHITECT', roast: 'Your stack runs on runners, remotes, VMs and optimism. Impressive. Fragile.' };
+  }
+  if (counts.bridge === 1) {
+    return { slug: 'bridge-builder', title: 'THE BRIDGE BUILDER', roast: 'You can cross. Just do not burn the machine on the other side yet.' };
+  }
+  if (counts.web > counts.native) {
+    return { slug: 'web-nomad', title: 'THE WEB NOMAD', roast: 'Your operating system is mostly a browser with better window management.' };
+  }
+  if (selectedApps.length > 0 && counts.native === selectedApps.length) {
+    return { slug: 'linux-native', title: 'THE LINUX NATIVE', roast: 'No hostage detected. Your excuses now have zero dependencies.' };
+  }
+  return { slug: 'clean-escape', title: 'THE CLEAN ESCAPE', roast: 'Your stack can move. The remaining blocker is your nerve.' };
+}
+
+export default function CompatibilityChecker({ initialSelected = [], challengeScore = null }: { initialSelected?: string[]; challengeScore?: number | null }) {
   const [selected, setSelected] = useState<string[]>(initialSelected);
   const [category, setCategory] = useState<Category>('All');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
-  const [copied, setCopied] = useState<'link' | 'post' | null>(null);
+  const [copied, setCopied] = useState<'link' | 'post' | 'challenge' | 'card' | null>(null);
   const [storageReady, setStorageReady] = useState(false);
 
   useEffect(() => {
@@ -121,6 +153,15 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
       : bridges.length
         ? Math.min(rawScore, 74)
         : rawScore;
+  const identity = getStackIdentity(selectedApps, counts);
+  const challengeDelta = score !== null && challengeScore !== null ? score - challengeScore : null;
+  const challengeLabel = challengeDelta === null
+    ? `STACK ROAST / ${selectedApps.length} APPS`
+    : challengeDelta > 0
+      ? `CHALLENGE BEATEN / +${challengeDelta}`
+      : challengeDelta < 0
+        ? `CHALLENGE LOST / ${challengeDelta}`
+        : 'CHALLENGE DRAW / EXACT SCORE';
 
   const result = score === null
     ? {
@@ -159,11 +200,11 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
     setQuery('');
     setShowAll(false);
   };
-  const flashCopied = (kind: 'link' | 'post') => {
+  const flashCopied = (kind: 'link' | 'post' | 'challenge' | 'card') => {
     setCopied(kind);
     window.setTimeout(() => setCopied(null), 1800);
   };
-  const copyText = async (text: string, kind: 'link' | 'post') => {
+  const copyText = async (text: string, kind: 'link' | 'post' | 'challenge') => {
     try {
       await navigator.clipboard.writeText(text);
       flashCopied(kind);
@@ -192,16 +233,97 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
   };
   const copyPost = () => {
     if (score === null) return;
-    copyText(`My Omarchy Stackprint:\n\n${score}/100 ready\n${counts.native} native · ${counts.web} web · ${counts.bridge} bridge · ${counts.blocked} blocked\n${blockers.length ? `Keep lane: ${blockers.map((app) => app.name).join(', ')}` : 'No hard blockers found.'}\n\nBuild yours before you switch. #omarchy`, 'post');
+    copyText(`${identity.title}\n\n${identity.roast}\n\nMy Omarchy Stack Roast: ${score}/100\n${counts.native} move · ${counts.web} web · ${counts.bridge} bridge · ${counts.blocked} keep\n\nGet roasted: can-i-omarchy.vercel.app #StackRoast #omarchy`, 'post');
+  };
+  const challengeFriend = async () => {
+    if (score === null) return;
+    const url = new URL(window.location.origin);
+    url.searchParams.set('challenge', String(score));
+    url.hash = 'checker';
+    const text = `I got ${score}/100 and ${identity.title}. Can your stack beat mine?`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Beat my Omarchy Stack Roast', text, url: url.toString() });
+        return;
+      } catch {
+        // Fall back to copying a challenge when native sharing is cancelled.
+      }
+    }
+    await copyText(`${text}\n${url}`, 'challenge');
+  };
+  const downloadRoastCard = () => {
+    if (score === null) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 630;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    context.fillStyle = '#070806';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = '#b6ff34';
+    context.fillRect(34, 34, 1132, 562);
+    context.strokeStyle = '#f4f1e8';
+    context.lineWidth = 5;
+    context.strokeRect(20, 20, 1160, 590);
+    context.fillStyle = '#070806';
+    context.font = '700 20px monospace';
+    context.fillText(`CAN I OMARCHY? / ${challengeLabel}`, 70, 86);
+    context.font = '700 86px monospace';
+    context.fillText(String(score).padStart(2, '0'), 980, 112);
+    context.fillStyle = '#ff4f87';
+    context.fillRect(70, 145, Math.min(720, 32 + identity.title.length * 16), 48);
+    context.fillStyle = '#070806';
+    context.font = '700 24px monospace';
+    context.fillText(identity.title, 86, 178);
+    const drawWrapped = (text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
+      const words = text.toUpperCase().split(' ');
+      let line = '';
+      let cursorY = y;
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (context.measureText(test).width > maxWidth && line) {
+          context.fillText(line, x, cursorY);
+          line = word;
+          cursorY += lineHeight;
+        } else {
+          line = test;
+        }
+      }
+      if (line) context.fillText(line, x, cursorY);
+      return cursorY;
+    };
+    context.font = '700 54px monospace';
+    const lastHeadlineY = drawWrapped(identity.roast, 70, 270, 1040, 62);
+    context.font = '700 18px monospace';
+    const apps = selectedApps.slice(0, 7).map((app) => app.name.toUpperCase()).join(' / ');
+    context.fillText(apps, 70, Math.min(480, lastHeadlineY + 72));
+    context.fillStyle = '#070806';
+    context.fillRect(70, 520, 1060, 2);
+    context.font = '700 18px monospace';
+    context.fillText(`${counts.native} MOVE   ${counts.web} WEB   ${counts.bridge} BRIDGE   ${counts.blocked} KEEP`, 70, 562);
+    context.textAlign = 'right';
+    context.fillText('CAN-I-OMARCHY.VERCEL.APP  #STACKROAST', 1130, 562);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `omarchy-${identity.slug}.png`;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      flashCopied('card');
+    }, 'image/png');
   };
 
   return (
     <>
       <section className="checker-section" id="checker" aria-labelledby="checker-title">
+        {challengeScore !== null && (
+          <div className="challenge-banner"><Swords aria-hidden="true" /><div><span>You were challenged</span><strong>Beat {challengeScore}/100 with your real stack.</strong></div><a href="#checker-title">Accept the roast <ArrowDown aria-hidden="true" /></a></div>
+        )}
         <div className="section-intro">
-          <span className="section-kicker">01 / Define your stack</span>
-          <h2 id="checker-title">What has to work on day one?</h2>
-          <p>Choose only the apps that would interrupt your job if they failed. The result updates as you select.</p>
+          <span className="section-kicker">01 / Name the hostage-taker</span>
+          <h2 id="checker-title">Which apps own your operating system?</h2>
+          <p>Choose the tools that can stop your actual work. Nice-to-have apps make a weak roast.</p>
         </div>
 
         <div className="checker-workspace">
@@ -322,10 +444,21 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
             <h2 id="plan-title">Your Omarchy Stackprint</h2>
             <p>A shareable map of what moves cleanly, what needs a bridge, and what forces you to keep another operating system.</p>
           </div>
-          <div className="share-actions">
-            <button type="button" onClick={shareResult} disabled={score === null}>{copied === 'link' ? <Check aria-hidden="true" /> : <Share2 aria-hidden="true" />}{copied === 'link' ? 'Link copied' : 'Share Stackprint'}</button>
-            <button type="button" onClick={copyPost} disabled={score === null}>{copied === 'post' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}{copied === 'post' ? 'Post copied' : 'Copy X post'}</button>
-          </div>
+        </div>
+
+        <article className="viral-roast-card">
+          <div className="viral-card-top"><span>{challengeLabel}</span><strong>{score}</strong></div>
+          <div className="viral-card-stamp"><Flame aria-hidden="true" />{identity.title}</div>
+          <h3>{identity.roast}</h3>
+          <div className="viral-card-apps">{selectedApps.slice(0, 8).map((app) => <span key={app.id}>{app.name}</span>)}</div>
+          <div className="viral-card-footer"><span>{counts.native} MOVE · {counts.web} WEB · {counts.bridge} BRIDGE · {counts.blocked} KEEP</span><b>CAN-I-OMARCHY.VERCEL.APP / #STACKROAST</b></div>
+        </article>
+
+        <div className="viral-actions" aria-label="Share your Stack Roast">
+          <button type="button" onClick={downloadRoastCard}><Download aria-hidden="true" />{copied === 'card' ? 'PNG downloaded' : 'Download roast card'}</button>
+          <button type="button" onClick={challengeFriend}><Swords aria-hidden="true" />{copied === 'challenge' ? 'Challenge copied' : 'Challenge someone'}</button>
+          <button type="button" onClick={shareResult}><Share2 aria-hidden="true" />{copied === 'link' ? 'Link copied' : 'Share stack URL'}</button>
+          <button type="button" onClick={copyPost}><Copy aria-hidden="true" />{copied === 'post' ? 'Post copied' : 'Copy X roast'}</button>
         </div>
 
         <div className="stackprint-summary">

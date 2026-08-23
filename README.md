@@ -1,6 +1,6 @@
 # Can I Omarchy?
 
-An honest, app-first migration check for people considering Omarchy.
+An app-first Stack Roast for people considering Omarchy.
 
 - Live: https://can-i-omarchy.vercel.app
 - Source: https://github.com/duclucky/can-i-omarchy
@@ -10,7 +10,9 @@ Most distro quizzes ask what you like. This one asks what can stop you from doin
 - an instant readiness score;
 - a verdict that does not average away hard blockers;
 - one-click starter stacks for developers, designers, creators, and founders;
-- a shareable four-lane Omarchy Stackprint;
+- one of eight named identities, from `THE ADOBE HOSTAGE` to `THE LINUX NATIVE`;
+- a shareable four-lane Omarchy Stackprint and downloadable 1200×630 roast card;
+- a score challenge link that lets another person try to beat the result;
 - alternative routes for supported hard blockers;
 - the exact Omarchy menu route for each migration step;
 - a sourced migration path for every selected app;
@@ -20,13 +22,13 @@ Most distro quizzes ask what you like. This one asks what can stop you from doin
 
 ## Product thesis
 
-The growth loop is useful before it is viral:
+The growth loop turns a private utility result into public identity content:
 
 1. A person who is curious about Omarchy checks their real stack.
-2. The result names the blocker and gives a credible route forward.
-3. They share a compact score and blocker list.
-4. People with missing or unusual apps contribute evidence.
-5. The dataset and the creator's authority compound together.
+2. The result assigns a provocative but evidence-backed identity.
+3. They download a branded card, post the roast, or challenge someone to beat the score.
+4. The recipient opens a clean challenge URL, builds their real stack, and gets a win/loss result.
+5. Every shared card and challenge points back to the checker, so utility and distribution reinforce each other.
 
 The core editorial rule is **build does not mean test**. A hosted Windows or macOS runner can produce an artifact, but it cannot replace runtime, signing, Simulator, device, installer, GPU, or UI validation.
 

@@ -1,11 +1,13 @@
-import { ArrowDown, Database, Github, LockKeyhole, ShieldCheck, Terminal } from 'lucide-react';
+import { ArrowDown, Github, ShieldCheck, Terminal } from 'lucide-react';
 import CompatibilityChecker from './compatibility-checker';
 import { APPS } from './apps';
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ apps?: string | string[] }> }) {
+export default async function Home({ searchParams }: { searchParams: Promise<{ apps?: string | string[]; challenge?: string | string[] }> }) {
   const params = await searchParams;
   const sharedApps = typeof params.apps === 'string' ? params.apps.split(',') : [];
   const initialSelected = [...new Set(sharedApps.filter((id) => APPS.some((app) => app.id === id)))];
+  const challengeValue = typeof params.challenge === 'string' ? Number(params.challenge) : Number.NaN;
+  const challengeScore = Number.isInteger(challengeValue) && challengeValue >= 0 && challengeValue <= 100 ? challengeValue : null;
 
   return (
     <main className="site-shell">
@@ -22,39 +24,34 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
 
       <section className="hero" id="top">
         <div className="hero-content">
-          <div className="eyebrow"><span className="live-dot" /> Independent Omarchy compatibility checker</div>
-          <h1>Before you switch,<br /><em>check your stack.</em></h1>
-          <p className="hero-copy">Choose the apps your work depends on. Get a verdict that treats hard blockers like hard blockers—and a migration route you can actually test.</p>
+          <div className="eyebrow"><span className="live-dot" /> Stack Roast / Omarchy edition</div>
+          <h1>Your apps are<br /><em>holding you hostage.</em></h1>
+          <p className="hero-copy">One app decides whether you can leave Windows or macOS. Pick your real stack. We&apos;ll name the hostage-taker—and give you something worth posting.</p>
           <div className="hero-actions">
-            <a className="hero-primary" href="#checker">Build my Stackprint <ArrowDown aria-hidden="true" /></a>
-            <span><ShieldCheck aria-hidden="true" /> No signup. Selections stay in your browser.</span>
+            <a className="hero-primary" href="#checker">Roast my stack <ArrowDown aria-hidden="true" /></a>
+            <span><ShieldCheck aria-hidden="true" /> No signup. No cope. Official sources.</span>
           </div>
           <div className="hero-proof" aria-label="Dataset summary">
-            <span><b>{APPS.length}</b> sourced apps</span>
-            <span><b>4</b> migration lanes</span>
-            <span><b>1</b> honest verdict</span>
+            <span><b>{APPS.length}</b> targets</span>
+            <span><b>8</b> identities</span>
+            <span><b>1</b> share card</span>
           </div>
         </div>
-        <div className="hero-terminal" aria-hidden="true">
-          <div className="terminal-bar"><span /><span /><span /><b>stack-check.sh</b></div>
-          <div className="terminal-body">
-            <p><span>$</span> can-i-omarchy --check my-stack</p>
-            <p className="terminal-muted">Scanning required apps...</p>
-            <p><b>READY</b> VS Code, Docker, Slack</p>
-            <p><strong>BLOCKED</strong> Photoshop</p>
-            <div className="terminal-rule" />
-            <p className="terminal-verdict"><Terminal /> stackprint: keep a Windows lane</p>
+        <div className="roast-preview" aria-hidden="true">
+          <div className="roast-preview-top"><span>LIVE SPECIMEN / 01</span><strong>39</strong></div>
+          <div className="roast-preview-stamp">THE ADOBE HOSTAGE</div>
+          <h2>Your creativity is owned by two installers.</h2>
+          <p>Photoshop + Illustrator decide your operating system. Not you.</p>
+          <div className="roast-preview-lanes">
+            <span><i /> MOVE 01</span><span><i /> WEB 01</span><span><i /> KEEP 02</span>
           </div>
+          <div className="roast-preview-footer"><Terminal aria-hidden="true" /> CAN-I-OMARCHY.VERCEL.APP <b>#STACKROAST</b></div>
         </div>
       </section>
 
-      <CompatibilityChecker initialSelected={initialSelected} />
+      <div className="roast-ticker" aria-hidden="true"><span>THE ADOBE HOSTAGE</span><i /> <span>THE WEB NOMAD</span><i /> <span>THE BRIDGE BUILDER</span><i /> <span>THE LINUX NATIVE</span><i /> <span>BEAT MY SCORE</span></div>
 
-      <section className="truth-strip" aria-label="Compatibility principles">
-        <article><span>01</span><Terminal aria-hidden="true" /><h3>Build is not test</h3><p>A hosted runner can produce an artifact. It cannot replace runtime, UI, signing, Simulator, installer, GPU, or device QA.</p></article>
-        <article><span>02</span><Database aria-hidden="true" /><h3>A VM is not a workstation</h3><p>Omarchy&apos;s Windows VM fits Office-class apps. Without GPU passthrough, it is not an honest route for Adobe production work.</p></article>
-        <article><span>03</span><LockKeyhole aria-hidden="true" /><h3>Your data stays local</h3><p>Your selections stay in the browser. A share URL contains only the stable IDs of the apps you chose.</p></article>
-      </section>
+      <CompatibilityChecker initialSelected={initialSelected} challengeScore={challengeScore} />
 
       <footer>
         <a className="brand" href="#top"><span className="brand-logo" aria-hidden="true" /><span>CAN I OMARCHY?</span></a>

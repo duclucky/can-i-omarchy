@@ -21,19 +21,19 @@ const productionOrigin =
 
 export const metadata: Metadata = {
   metadataBase: new URL(productionOrigin),
-  title: 'Can I Omarchy? — Check your stack before you switch',
-  description: 'Select the apps your work depends on, find hard blockers, and build a source-backed Omarchy migration plan.',
+  title: 'Can I Omarchy? — Get your stack roasted',
+  description: 'Find the app holding your operating system hostage. Get a named Stack Roast, downloadable card, and challenge link.',
   openGraph: {
     title: 'Can I Omarchy?',
-    description: 'Check your stack before you switch.',
+    description: 'Your apps are holding you hostage. Get your stack roasted.',
     type: 'website',
     url: '/',
-    images: [{ url: '/og.png', width: 1733, height: 908, alt: 'Can I Omarchy? Check your stack before you switch.' }],
+    images: [{ url: '/og.png', width: 1734, height: 907, alt: 'Can I Omarchy? Your apps are holding you hostage. Get your stack roasted.' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Can I Omarchy?',
-    description: 'Check your stack before you switch.',
+    description: 'Your apps are holding you hostage. Get your stack roasted.',
     images: ['/og.png'],
   },
   icons: {
