@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { IBM_Plex_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const bodyFont = IBM_Plex_Sans({
+  variable: '--font-body',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const displayFont = JetBrains_Mono({
+  variable: '--font-display',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
 const productionOrigin =
@@ -17,19 +21,19 @@ const productionOrigin =
 
 export const metadata: Metadata = {
   metadataBase: new URL(productionOrigin),
-  title: 'Can I Omarchy? — The honest compatibility check',
-  description: 'Check whether your real work stack is ready for Omarchy before you touch your drive.',
+  title: 'Can I Omarchy? — Check your stack before you switch',
+  description: 'Select the apps your work depends on, find hard blockers, and build a source-backed Omarchy migration plan.',
   openGraph: {
     title: 'Can I Omarchy?',
-    description: 'Your apps decide. Not the hype.',
+    description: 'Check your stack before you switch.',
     type: 'website',
     url: '/',
-    images: [{ url: '/og.png', width: 1732, height: 907, alt: 'Can I Omarchy? Your apps decide. Not the hype.' }],
+    images: [{ url: '/og.png', width: 1733, height: 908, alt: 'Can I Omarchy? Check your stack before you switch.' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Can I Omarchy?',
-    description: 'Your apps decide. Not the hype.',
+    description: 'Check your stack before you switch.',
     images: ['/og.png'],
   },
 };
@@ -42,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${bodyFont.variable} ${displayFont.variable} antialiased`}
       >
         {children}
       </body>

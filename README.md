@@ -47,6 +47,12 @@ npm run build:vercel
 
 `vercel.json` selects the Next.js build without changing the existing Sites deployment path.
 
+## Interface system
+
+The interface direction is generated and maintained with [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). The committed design-system master records the project palette, typography, spacing, motion, accessibility, and responsive rules used by the current UI.
+
+The checker is intentionally consequence-aware: a hard blocker caps readiness at 39, while a stack that requires a bridge caps at 74. This keeps the score aligned with the verdict instead of averaging away the app that can stop someone from doing their job.
+
 ## Updating compatibility data
 
 App records currently live in `app/page.tsx`. Every record needs:
