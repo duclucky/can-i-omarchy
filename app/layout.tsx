@@ -12,9 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const productionOrigin = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : 'https://can-i-omarchy.rowers-drinker-2hrmx.chatgpt.site';
+const productionOrigin =
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://can-i-omarchy.vercel.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(productionOrigin),

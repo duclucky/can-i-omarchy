@@ -2,6 +2,9 @@
 
 An honest, app-first migration check for people considering Omarchy.
 
+- Live: https://can-i-omarchy.vercel.app
+- Source: https://github.com/duclucky/can-i-omarchy
+
 Most distro quizzes ask what you like. This one asks what can stop you from doing your job. Select the apps you rely on and get:
 
 - an instant readiness score;
