@@ -1,5 +1,4 @@
 import { ArrowDown, Database, Github, LockKeyhole, ShieldCheck, Terminal } from 'lucide-react';
-import Image from 'next/image';
 import CompatibilityChecker from './compatibility-checker';
 import { APPS } from './apps';
 
@@ -13,7 +12,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
       <a className="skip-link" href="#checker">Skip to compatibility checker</a>
 
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Can I Omarchy home"><Image className="brand-logo" src="/brand-logo.png" alt="" width={40} height={40} priority /><span>CAN I OMARCHY?</span></a>
+        <a className="brand" href="#top" aria-label="Can I Omarchy home"><span className="brand-logo" aria-hidden="true" /><span>CAN I OMARCHY?</span></a>
         <nav className="topbar-nav" aria-label="Primary navigation">
           <a href="#checker">Checker</a>
           <a href="#checker">{APPS.length} apps</a>
@@ -53,7 +52,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
       </section>
 
       <footer>
-        <a className="brand" href="#top"><Image className="brand-logo" src="/brand-logo.png" alt="" width={40} height={40} /><span>CAN I OMARCHY?</span></a>
+        <a className="brand" href="#top"><span className="brand-logo" aria-hidden="true" /><span>CAN I OMARCHY?</span></a>
         <p>Independent community tool. Not affiliated with Omarchy, Basecamp, or 37signals.</p>
         <span>Compatibility snapshot / Aug 2026</span>
       </footer>
