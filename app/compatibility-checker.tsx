@@ -63,7 +63,7 @@ function getStackIdentity(selectedApps: WorkApp[], counts: StackCounts) {
   const blockedIds = selectedApps.filter((app) => app.status === 'blocked').map((app) => app.id);
   const blockedNames = selectedApps.filter((app) => app.status === 'blocked').map((app) => app.name);
   if (blockedIds.some((id) => ['photoshop', 'illustrator', 'premiere', 'after-effects'].includes(id))) {
-    return { slug: 'adobe-hostage', title: 'THE ADOBE HOSTAGE', roast: 'Your creative freedom is leased from Adobe. Cancel the lease—or keep the keys to Windows.' };
+    return { slug: 'adobe-hostage', title: 'THE ADOBE HOSTAGE', roast: 'Your creative freedom is leased from Adobe. Cancel the lease, or keep the keys to Windows.' };
   }
   if (blockedIds.some((id) => ['final-cut', 'ableton', 'fl-studio'].includes(id))) {
     return { slug: 'studio-prisoner', title: 'THE STUDIO PRISONER', roast: 'Your files can move. Your studio cannot. The expensive plugins have the final vote.' };
@@ -178,7 +178,7 @@ export default function CompatibilityChecker({ initialSelected = [], challengeSc
       : bridges.length
         ? {
             code: 'STAGED MOVE',
-            title: 'You can move—with a bridge plan.',
+            title: 'You can move with a bridge plan.',
             summary: `${bridges.map((app) => app.name).join(' and ')} still need a web, VM, CI, remote, or real-device lane. Test that lane before switching.`,
           }
         : {
@@ -412,7 +412,7 @@ export default function CompatibilityChecker({ initialSelected = [], challengeSc
             </div>
 
             <div className="score-block">
-              <div><strong>{score ?? '—'}</strong>{score !== null && <span>/100</span>}</div>
+              <div><strong>{score ?? 'N/A'}</strong>{score !== null && <span>/100</span>}</div>
               <div className="score-track" aria-hidden="true"><span style={{ width: `${score ?? 0}%` }} /></div>
             </div>
 

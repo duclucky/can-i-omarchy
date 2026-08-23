@@ -26,7 +26,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
         <div className="hero-content">
           <div className="eyebrow"><span className="live-dot" /> Stack Roast / Omarchy edition</div>
           <h1>Your apps are<br /><em>holding you hostage.</em></h1>
-          <p className="hero-copy">One app decides whether you can leave Windows or macOS. Pick your real stack. We&apos;ll name the hostage-taker—and give you something worth posting.</p>
+          <p className="hero-copy">One app decides whether you can leave Windows or macOS. Pick your real stack. We&apos;ll name the hostage-taker, then give you something worth posting.</p>
           <div className="hero-actions">
             <a className="hero-primary" href="#checker">Roast my stack <ArrowDown aria-hidden="true" /></a>
             <span><ShieldCheck aria-hidden="true" /> No signup. No cope. Official sources.</span>

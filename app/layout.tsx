@@ -21,7 +21,7 @@ const productionOrigin =
 
 export const metadata: Metadata = {
   metadataBase: new URL(productionOrigin),
-  title: 'Can I Omarchy? — Get your stack roasted',
+  title: 'Can I Omarchy? | Get your stack roasted',
   description: 'Find the app holding your operating system hostage. Get a named Stack Roast, downloadable card, and challenge link.',
   openGraph: {
     title: 'Can I Omarchy?',
