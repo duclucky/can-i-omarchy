@@ -12,8 +12,12 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+const productionOrigin = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : 'https://can-i-omarchy.rowers-drinker-2hrmx.chatgpt.site';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://can-i-omarchy.rowers-drinker-2hrmx.chatgpt.site'),
+  metadataBase: new URL(productionOrigin),
   title: 'Can I Omarchy? — The honest compatibility check',
   description: 'Check whether your real work stack is ready for Omarchy before you touch your drive.',
   openGraph: {

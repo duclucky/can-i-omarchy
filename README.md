@@ -36,6 +36,14 @@ Create a production build with:
 npm run build
 ```
 
+The project preserves its original Sites build and also includes a native Next.js build for Vercel:
+
+```bash
+npm run build:vercel
+```
+
+`vercel.json` selects the Next.js build without changing the existing Sites deployment path.
+
 ## Updating compatibility data
 
 App records currently live in `app/page.tsx`. Every record needs:
