@@ -1,23 +1,58 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   ArrowDown,
+  BookmarkCheck,
+  Boxes,
   Check,
   CircleCheck,
   Copy,
   ExternalLink,
+  GitCompareArrows,
   Info,
   Plus,
   RotateCcw,
+  Route,
   Search,
   Share2,
+  Sparkles,
+  Terminal,
   X,
 } from 'lucide-react';
-import { APPS, CATEGORIES, STATUS_META, type AppStatus, type Category } from './apps';
+import { APPS, CATEGORIES, STATUS_META, type AppStatus, type Category, type WorkApp } from './apps';
 
 const STATUS_ORDER: AppStatus[] = ['native', 'web', 'bridge', 'blocked'];
+
+const STACK_PRESETS = [
+  { id: 'developer', name: 'Developer', note: 'Code, containers, APIs', apps: ['vscode', 'docker', 'postman', 'slack', 'figma'] },
+  { id: 'designer', name: 'Designer', note: 'UI and brand work', apps: ['photoshop', 'illustrator', 'figma', 'slack'] },
+  { id: 'creator', name: 'Video creator', note: 'Edit, motion, stream', apps: ['premiere', 'after-effects', 'davinci', 'obs'] },
+  { id: 'founder', name: 'Solo founder', note: 'Docs, calls, product', apps: ['google-workspace', 'notion', 'figma', 'slack', 'zoom'] },
+] as const;
+
+const ALTERNATIVE_MAP: Record<string, string[]> = {
+  photoshop: ['krita', 'gimp'],
+  illustrator: ['inkscape'],
+  premiere: ['kdenlive', 'davinci'],
+  affinity: ['krita', 'gimp', 'inkscape'],
+  sketch: ['figma'],
+  'after-effects': ['blender', 'kdenlive'],
+  'final-cut': ['davinci', 'kdenlive'],
+};
+
+function getOmarchyRoute(app: WorkApp) {
+  if (app.status === 'blocked') return 'Keep a supported Windows or macOS lane';
+  if (app.id === 'xcode' || app.id === 'windows-builds') return 'Use CI, remote hardware, or a real-device lane';
+  if (app.id === 'microsoft-365') return 'Install → Web App, or use the Windows VM';
+  if (app.category === 'Gaming') return 'Super + Space → Install → Gaming';
+  if (['onepassword', 'bitwarden', 'spotify'].includes(app.id)) return 'Super + Space → Install → Service';
+  if (['vscode', 'cursor', 'zed', 'sublime', 'neovim', 'jetbrains'].includes(app.id)) return 'Super + Space → Install → Editor';
+  if (app.status === 'web') return 'Super + Space → Install → Web App';
+  if (app.status === 'bridge') return 'Stage the bridge before changing your main OS';
+  return 'Super + Space → Install → Package / AUR';
+}
 
 export default function CompatibilityChecker({ initialSelected = [] }: { initialSelected?: string[] }) {
   const [selected, setSelected] = useState<string[]>(initialSelected);
@@ -25,6 +60,37 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [copied, setCopied] = useState<'link' | 'post' | null>(null);
+  const [storageReady, setStorageReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    let restored: string[] | null = null;
+    try {
+      if (initialSelected.length === 0) {
+        const saved = JSON.parse(window.localStorage.getItem('can-i-omarchy-stack-v1') ?? '[]');
+        if (Array.isArray(saved)) {
+          restored = saved.filter((id): id is string => typeof id === 'string' && APPS.some((app) => app.id === id));
+        }
+      }
+    } catch {
+      // Local storage is an enhancement; the checker still works without it.
+    }
+    queueMicrotask(() => {
+      if (cancelled) return;
+      if (restored) setSelected(restored);
+      setStorageReady(true);
+    });
+    return () => { cancelled = true; };
+  }, [initialSelected]);
+
+  useEffect(() => {
+    if (!storageReady) return;
+    try {
+      window.localStorage.setItem('can-i-omarchy-stack-v1', JSON.stringify(selected));
+    } catch {
+      // Ignore storage restrictions in private or hardened browsers.
+    }
+  }, [selected, storageReady]);
 
   const selectedApps = useMemo(() => APPS.filter((app) => selected.includes(app.id)), [selected]);
   const filteredApps = useMemo(() => {
@@ -81,7 +147,18 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
           };
 
   const sortedPlan = [...selectedApps].sort((a, b) => STATUS_META[a.status].weight - STATUS_META[b.status].weight);
+  const escapeRoutes = blockers.map((blocker) => ({
+    blocker,
+    alternatives: (ALTERNATIVE_MAP[blocker.id] ?? []).map((id) => APPS.find((app) => app.id === id)).filter((app): app is WorkApp => Boolean(app)),
+  })).filter((route) => route.alternatives.length > 0);
   const toggle = (id: string) => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  const addApp = (id: string) => setSelected((current) => current.includes(id) ? current : [...current, id]);
+  const applyPreset = (apps: readonly string[]) => {
+    setSelected([...apps]);
+    setCategory('All');
+    setQuery('');
+    setShowAll(false);
+  };
   const flashCopied = (kind: 'link' | 'post') => {
     setCopied(kind);
     window.setTimeout(() => setCopied(null), 1800);
@@ -100,7 +177,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
     url.searchParams.set('apps', selected.join(','));
     const data = {
       title: 'Can I Omarchy?',
-      text: `My work stack is ${score}% Omarchy-ready. ${blockers.length ? `Hard blocker: ${blockers.map((app) => app.name).join(', ')}.` : 'No hard blockers found.'}`,
+      text: `My Omarchy Stackprint is ${score}/100: ${counts.native} native, ${counts.web} web, ${counts.bridge} bridge, ${counts.blocked} blocked.`,
       url: url.toString(),
     };
     if (navigator.share) {
@@ -115,7 +192,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
   };
   const copyPost = () => {
     if (score === null) return;
-    copyText(`I checked my real work stack before switching to Omarchy.\n\nReadiness: ${score}/100\n${blockers.length ? `Hard blocker${blockers.length > 1 ? 's' : ''}: ${blockers.map((app) => app.name).join(', ')}` : 'No hard blockers found.'}\n\nCheck your stack before you switch. #omarchy`, 'post');
+    copyText(`My Omarchy Stackprint:\n\n${score}/100 ready\n${counts.native} native · ${counts.web} web · ${counts.bridge} bridge · ${counts.blocked} blocked\n${blockers.length ? `Keep lane: ${blockers.map((app) => app.name).join(', ')}` : 'No hard blockers found.'}\n\nBuild yours before you switch. #omarchy`, 'post');
   };
 
   return (
@@ -129,6 +206,19 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
 
         <div className="checker-workspace">
           <div className="picker-panel">
+            <div className="preset-block">
+              <div className="preset-heading"><span><Sparkles aria-hidden="true" /> Quick start</span><small>Replace the sample with your real stack.</small></div>
+              <div className="preset-grid">
+                {STACK_PRESETS.map((preset) => (
+                  <button type="button" key={preset.id} onClick={() => applyPreset(preset.apps)}>
+                    <Boxes aria-hidden="true" />
+                    <span><strong>{preset.name}</strong><small>{preset.note}</small></span>
+                    <span>{preset.apps.length}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="picker-toolbar">
               <label className="search-field">
                 <span className="sr-only">Search apps</span>
@@ -136,7 +226,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
                 <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${APPS.length} work apps`} />
                 {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search"><X aria-hidden="true" /></button>}
               </label>
-              <span className="selection-count"><b>{selected.length}</b> selected</span>
+              <span className="selection-count"><BookmarkCheck aria-hidden="true" /><b>{selected.length}</b> selected · saved locally</span>
             </div>
 
             <div className="category-tabs" aria-label="Filter apps by category">
@@ -219,7 +309,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
             {score === null ? (
               <button className="primary-cta disabled" type="button" disabled>Select an app to continue <ArrowDown aria-hidden="true" /></button>
             ) : (
-              <a className="primary-cta" href="#plan">Build my migration plan <ArrowDown aria-hidden="true" /></a>
+              <a className="primary-cta" href="#plan">Open my Stackprint <ArrowDown aria-hidden="true" /></a>
             )}
           </aside>
         </div>
@@ -228,15 +318,57 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
       {sortedPlan.length > 0 && <section className="plan-section" id="plan" aria-labelledby="plan-title">
         <div className="plan-header">
           <div>
-            <span className="section-kicker">02 / Make the move reversible</span>
-            <h2 id="plan-title">Your migration plan</h2>
-            <p>Start with the highest-consequence app. Build is not test, and “has a Linux version” is not proof that your workflow survives.</p>
+            <span className="section-kicker">02 / Your decision artifact</span>
+            <h2 id="plan-title">Your Omarchy Stackprint</h2>
+            <p>A shareable map of what moves cleanly, what needs a bridge, and what forces you to keep another operating system.</p>
           </div>
           <div className="share-actions">
-            <button type="button" onClick={shareResult} disabled={score === null}>{copied === 'link' ? <Check aria-hidden="true" /> : <Share2 aria-hidden="true" />}{copied === 'link' ? 'Link copied' : 'Share result'}</button>
+            <button type="button" onClick={shareResult} disabled={score === null}>{copied === 'link' ? <Check aria-hidden="true" /> : <Share2 aria-hidden="true" />}{copied === 'link' ? 'Link copied' : 'Share Stackprint'}</button>
             <button type="button" onClick={copyPost} disabled={score === null}>{copied === 'post' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}{copied === 'post' ? 'Post copied' : 'Copy X post'}</button>
           </div>
         </div>
+
+        <div className="stackprint-summary">
+          <div className="stackprint-score">
+            <span>STACK ID / {selectedApps.map((app) => app.id.slice(0, 2).toUpperCase()).join('-')}</span>
+            <strong>{score}<small>/100</small></strong>
+            <p>{result.code}</p>
+          </div>
+          <div className="stackprint-routes">
+            {STATUS_ORDER.map((status) => {
+              const routeApps = selectedApps.filter((app) => app.status === status);
+              return (
+                <article key={status} className={status}>
+                  <div><span className={`status-dot ${status}`} /><b>{STATUS_META[status].action}</b><strong>{routeApps.length}</strong></div>
+                  <p>{STATUS_META[status].label}</p>
+                  <div className="route-apps">{routeApps.length ? routeApps.map((app) => <span key={app.id}>{app.name}</span>) : <em>None</em>}</div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+
+        {escapeRoutes.length > 0 && (
+          <section className="escape-routes" aria-labelledby="escape-title">
+            <div className="escape-heading"><GitCompareArrows aria-hidden="true" /><div><span>Escape routes</span><h3 id="escape-title">Test an alternative before accepting a permanent blocker.</h3></div></div>
+            <div className="escape-grid">
+              {escapeRoutes.map(({ blocker, alternatives }) => (
+                <article key={blocker.id}>
+                  <div className="escape-from"><span className="app-icon mini" style={{ '--app-color': blocker.color } as React.CSSProperties}>{blocker.monogram}</span><div><small>Blocked</small><strong>{blocker.name}</strong></div></div>
+                  <Route aria-hidden="true" />
+                  <div className="escape-options">
+                    {alternatives.map((alternative) => {
+                      const active = selected.includes(alternative.id);
+                      return <button type="button" key={alternative.id} onClick={() => addApp(alternative.id)} disabled={active}><span className={`status-dot ${alternative.status}`} />{alternative.name}<small>{active ? 'Added' : '+ Test'}</small></button>;
+                    })}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <div className="plan-list-heading"><span>03 / Execution order</span><h3>Test the hardest constraint first.</h3><p>The route below follows actual consequence, not app popularity.</p></div>
 
         <div className="plan-list">
           {sortedPlan.map((app, index) => (
@@ -246,7 +378,7 @@ export default function CompatibilityChecker({ initialSelected = [] }: { initial
                 <span className="app-icon mini" style={{ '--app-color': app.color } as React.CSSProperties}>{app.monogram}</span>
                 <div><h3>{app.name}</h3><span className={`route-label ${app.status}`}>{STATUS_META[app.status].action} / {STATUS_META[app.status].label}</span></div>
               </div>
-              <p>{app.plan}</p>
+              <div className="plan-copy"><p>{app.plan}</p><span><Terminal aria-hidden="true" />{getOmarchyRoute(app)}</span></div>
               <a href={app.source} target="_blank" rel="noreferrer" aria-label={`Open official source for ${app.name}`}>Official source <ExternalLink aria-hidden="true" /></a>
             </article>
           ))}

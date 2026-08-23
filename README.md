@@ -9,10 +9,14 @@ Most distro quizzes ask what you like. This one asks what can stop you from doin
 
 - an instant readiness score;
 - a verdict that does not average away hard blockers;
+- one-click starter stacks for developers, designers, creators, and founders;
+- a shareable four-lane Omarchy Stackprint;
+- alternative routes for supported hard blockers;
+- the exact Omarchy menu route for each migration step;
 - a sourced migration path for every selected app;
+- local-only stack persistence for return visits;
 - a shareable URL containing only the selected app IDs;
-- copy written for sharing the result on X;
-- a contribution template for expanding the compatibility dataset.
+- copy written for sharing the Stackprint on X.
 
 ## Product thesis
 
@@ -55,7 +59,7 @@ The checker is intentionally consequence-aware: a hard blocker caps readiness at
 
 ## Updating compatibility data
 
-App records currently live in `app/page.tsx`. Every record needs:
+App records currently live in `app/apps.ts`. Every record needs:
 
 - a stable ID and category;
 - one of `native`, `web`, `bridge`, or `blocked`;

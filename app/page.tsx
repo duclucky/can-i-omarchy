@@ -26,8 +26,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
           <h1>Before you switch,<br /><em>check your stack.</em></h1>
           <p className="hero-copy">Choose the apps your work depends on. Get a verdict that treats hard blockers like hard blockers—and a migration route you can actually test.</p>
           <div className="hero-actions">
-            <a className="hero-primary" href="#checker">Check my apps <ArrowDown aria-hidden="true" /></a>
+            <a className="hero-primary" href="#checker">Build my Stackprint <ArrowDown aria-hidden="true" /></a>
             <span><ShieldCheck aria-hidden="true" /> No signup. Selections stay in your browser.</span>
+          </div>
+          <div className="hero-proof" aria-label="Dataset summary">
+            <span><b>{APPS.length}</b> sourced apps</span>
+            <span><b>4</b> migration lanes</span>
+            <span><b>1</b> honest verdict</span>
           </div>
         </div>
         <div className="hero-terminal" aria-hidden="true">
@@ -38,7 +43,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ a
             <p><b>READY</b> VS Code, Docker, Slack</p>
             <p><strong>BLOCKED</strong> Photoshop</p>
             <div className="terminal-rule" />
-            <p className="terminal-verdict"><Terminal /> verdict: keep a Windows lane</p>
+            <p className="terminal-verdict"><Terminal /> stackprint: keep a Windows lane</p>
           </div>
         </div>
       </section>
